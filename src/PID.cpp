@@ -24,7 +24,7 @@ void PID::Init(double Kp, double Ki, double Kd) {
 void PID::UpdateError(double cte) {
 
   if (likely(is_initialized)) {
-    d_error = cte - prev_error;
+    d_error = cte - p_error;
   }
   else{
     d_error = 0;
@@ -33,7 +33,6 @@ void PID::UpdateError(double cte) {
 
   i_error = i_error + cte;
   p_error = cte;
-  prev_error = cte;
 
   error = error + cte * cte;
 }
