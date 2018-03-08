@@ -18,6 +18,7 @@ void PID::Init(double Kp, double Ki, double Kd) {
 
   is_initialized = false;
   i_error = 0;
+  d_error = 0;
   error = 0;
 }
 
