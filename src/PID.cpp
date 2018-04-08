@@ -20,6 +20,7 @@ void PID::Init(double Kp, double Ki, double Kd) {
   i_error = 0;
   d_error = 0;
   error = 0;
+  integral_max = -1;
 }
 
 void PID::UpdateError(double cte) {
@@ -33,6 +34,11 @@ void PID::UpdateError(double cte) {
   }
 
   i_error = i_error + cte;
+
+  if(this->integral_max > 0){
+    i_error = max(min(i_error, this->integral_max), -this->integral_max);
+  }
+
   p_error = cte;
 
   error = error + cte * cte;
@@ -42,46 +48,6 @@ double PID::TotalError() {
   return -Kp * p_error - Ki * i_error - Kd * d_error;
 }
 
-/*
-void PID::twiddle(double tol=0.2){
-  double p[3] = {0, 0, 0};
-  double dp[3] = {1, 1, 1};
-  double best_error;
-  double it = 0;
-  double err = 0;
-  //run again
-  best_error = yield();
-
-  while (dp[0]+dp[1]+dp[2] > tol){
-    std::cout << "Iteration " << it << ", best error = " << best_error << std::endl;
-
-    for(int i=0; i<3; ++i){
-      p[i] += dp[i];
-      //run again
-      best_error = yield();
-
-      if (err < best_error){
-        best_error = err;
-        dp[i] *= 1.1;
-      }
-      else{
-        p[i] -= 2* dp[i];
-        //run again
-        best_error = yield();
-
-        if (err < best_error){
-          best_error = err;
-          dp[i] *= 1.1;
-        }
-        else{
-          p[i] += dp[i];
-          dp[i] *= 0.9;
-        }
-
-      }
-    }
-    it +=1;
-  }
-  std::cout << "Completed parameters are: " << dp[0] << " " << dp[1] << " " << dp[2] << ", best error = " << best_error << std::endl;
+void PID::SetIntegralMax(double max_val){
+  integral_max = max_val;
 }
-*/

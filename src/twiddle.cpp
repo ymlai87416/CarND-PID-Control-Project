@@ -46,7 +46,7 @@ int move(PID* pid_steering, PID* pid_speed, int timestep, double const_speed, do
           std::string event = j[0].get<std::string>();
           if (event == "telemetry") {
 
-            if(timestep > 0){
+            if(timestep > 0) {
               // j[1] is the data JSON object
               double cte = std::stod(j[1]["cte"].get<std::string>());
               double speed = std::stod(j[1]["speed"].get<std::string>());
@@ -56,11 +56,15 @@ int move(PID* pid_steering, PID* pid_speed, int timestep, double const_speed, do
               * TODO: Calcuate steering value here, remember the steering value is
               * [-1, 1].
               * NOTE: Feel free to play around with the throttle and speed. Maybe use
-              * another PID controller to control the speed!
+              * another PID controller to control the speed!waaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadddd
               */
               pid_steering->UpdateError(cte);
               steer_value = pid_steering->TotalError();
-              error_steering += steer_value * steer_value;
+
+              if (speed > const_speed * 0.8) {
+                error_steering += steer_value * steer_value * steer_value * steer_value;
+                timestep--;
+              }
 
               //speed error
               double cte_speed = const_speed - speed;
@@ -79,7 +83,6 @@ int move(PID* pid_steering, PID* pid_speed, int timestep, double const_speed, do
               //std::cout << msg << std::endl;
               ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 
-              timestep--;
             }
             else{
               ws.send("Bye", 3, uWS::OpCode::CLOSE);
@@ -151,15 +154,19 @@ void twiddle_steering(){
   pid_steering.Init(0.2, 0, 3);
   pid_speed.Init(0.271308, 0, 0.0891773);
 
-  double p[3] = {0.134611, 0.000270736, 3.05349};
+  //double p[3] = {0.17715, 0.0002198, 3};
+  double p[3] = {0.13715, 0.0002448, 2.88};
+  //double p[3] = {0.17715, 0.0002043, 3.225}; //best
+  //double p[3] = {0.19215, 0.0001998, 3};
+  // double p[3] = {0.20715, 0.0001998, 3};
   setPIDParameter(&pid_steering, p);
-  double dp[3] = {0.02, 0.002, 0.02};
+  double dp[3] = {0.004, 0.000005, 0.05};
   //double dp[3] = {0.0, 0.0, 0.0};
   double best_error;
   double tol = 0.02;
   int it = 1;
   int timestep = 200;
-  double const_speed = 70;
+  double const_speed = 50;
 
   double error_steering, error_speed;
 
@@ -172,7 +179,7 @@ void twiddle_steering(){
   while (dp[0]+dp[1]+dp[2] > tol){
     std::cout << "Iteration " << it << ", best error = " << best_error << std::endl;
 
-    for(int i=0; i<3; ++i){
+    for(int i=2; i>=0; --i){
       p[i] += dp[i];
       setPIDParameter(&pid_steering, p);
 

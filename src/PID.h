@@ -42,10 +42,13 @@ public:
   */
   double TotalError();
 
+  void SetIntegralMax(double max_val);
+
 private:
   double prev_error;
   bool is_initialized;
   double error;
+  double integral_max = -1;
 };
 
 #endif /* PID_H */
