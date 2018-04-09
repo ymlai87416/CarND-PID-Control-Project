@@ -20,7 +20,7 @@ link_directories(/usr/local/Cellar/libuv/1*/lib)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
 
-add_executable(pid src/PID.cpp src/main.cpp)
+add_executable(pid src/PID.cpp src/main.cpp src/Robot.cpp src/Robot.h)
 add_executable(twiddle src/PID.cpp src/twiddle.cpp)
 
 target_link_libraries(pid z ssl uv uWS)
